@@ -56,6 +56,7 @@ Results are saved in the `moodle_results` directory with timestamped folders con
 ## Configuration
 
 Update the `COOKIE` and `BASE_URL` variables in the script according to your Moodle instance.
+
 ![image](https://github.com/user-attachments/assets/16f406eb-c65f-4141-ab36-02a7d512c6be)
 
 Ex : poglrsc7gnum9ermf590fprbt9
