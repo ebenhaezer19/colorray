@@ -1,6 +1,7 @@
 # Colloray | Moodle Profile Scraper
 
 A powerful and efficient tool for scraping profile information from Moodle learning management systems. This tool is designed for educational purposes and authorized testing only.
+You must log in and must a CIT People.
 
 ## Features
 
@@ -11,6 +12,9 @@ A powerful and efficient tool for scraping profile information from Moodle learn
 - Anti-detection mechanisms
 - Command-line interface
 - Organized results with timestamps
+
+![image](https://github.com/user-attachments/assets/36ce3af2-9a33-4e84-9072-c62fac36bc5d)
+
 
 ## Installation
 
