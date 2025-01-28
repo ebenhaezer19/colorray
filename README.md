@@ -1,5 +1,4 @@
-# README.md
-# Moodle Profile Scraper
+# Colloray | Moodle Profile Scraper
 
 A powerful and efficient tool for scraping profile information from Moodle learning management systems. This tool is designed for educational purposes and authorized testing only.
 
