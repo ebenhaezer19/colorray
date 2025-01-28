@@ -1,0 +1,32 @@
+# requirements.txt
+requests>=2.26.0
+beautifulsoup4>=4.9.3
+colorama>=0.4.4
+
+# .gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+moodle_results/
+.env
+.venv
+venv/
+ENV/
+
