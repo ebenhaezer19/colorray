@@ -13,10 +13,12 @@ You must log in and must a CIT People.
 - Command-line interface
 - Organized results with timestamps
 
-![image](https://github.com/user-attachments/assets/36ce3af2-9a33-4e84-9072-c62fac36bc5d)
+![Colloray](https://github.com/user-attachments/assets/d982a53e-8678-4c3b-b8a4-eefb3b15df57)
 
 
 ## Installation
+
+
 
 1. Clone the repository:
 ```bash
