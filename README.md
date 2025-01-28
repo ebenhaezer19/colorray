@@ -40,7 +40,7 @@ python crollay.py
 
 Advanced usage with custom parameters:
 ```bash
-python ccrollay.py --start 1000 --end 2000 --threads 10 --delay 0.3
+python crollay.py --start 1000 --end 2000 --threads 10 --delay 0.3
 ```
 
 ### Command Line Arguments
