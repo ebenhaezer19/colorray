@@ -22,7 +22,7 @@ You must log in and must a CIT People.
 
 1. Clone the repository:
 ```bash
-[git clone https://github.com/yourusername/moodle-scraper.git](https://github.com/ebenhaezer19/crollay.git)
+git clone https://github.com/yourusername/moodle-scraper.git](https://github.com/ebenhaezer19/crollay.git
 cd crollay
 ```
 
