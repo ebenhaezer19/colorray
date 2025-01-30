@@ -9,6 +9,7 @@ import json
 import random
 import argparse
 import concurrent.futures
+import getpass
 
 # Initialize colorama for colored console output
 init()
@@ -28,27 +29,57 @@ BANNER = Fore.CYAN + """
 """ + Fore.RESET
 
 # Configuration
-BASE_URL = "https://moodle.calvin.ac.id/user/profile.php?id="
-COOKIE = "MoodleSession=poglrsc7gnum9ermf590fprbt9"
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-    'Cookie': COOKIE
-}
-
-# Create output directory
+BASE_URL = "https://moodle.calvin.ac.id/"
+LOGIN_URL = urljoin(BASE_URL, "/login/index.php")
+PROFILE_URL = urljoin(BASE_URL, "/user/profile.php?id=")
 OUTPUT_DIR = "moodle_results"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 class MoodleScraper:
-    def __init__(self, start_id, end_id, threads=5, delay=0.5):
+    def __init__(self, start_id, end_id, email, password, threads=5, delay=0.5):
         self.start_id = start_id
         self.end_id = end_id
         self.threads = threads
         self.delay = delay
+        self.email = email
+        self.password = password
+        self.session = requests.Session()
         self.profiles = []
         self.found_count = 0
         self.errors = []
         self.start_time = None
+        self.logged_in = False
+
+    def login(self):
+        """Authenticate with Moodle using email and password."""
+        try:
+            # First get the login page to obtain the logintoken
+            response = self.session.get(LOGIN_URL, timeout=10)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            logintoken = soup.find('input', {'name': 'logintoken'}).get('value', '')
+
+            # Prepare login payload
+            payload = {
+                'anchor': '',
+                'logintoken': logintoken,
+                'username': self.email,
+                'password': self.password
+            }
+
+            # Post login credentials
+            response = self.session.post(LOGIN_URL, data=payload, timeout=10)
+            
+            # Check if login was successful
+            if "Invalid login" in response.text:
+                self.errors.append("Login failed: Invalid email or password")
+                return False
+                
+            self.logged_in = True
+            return True
+
+        except Exception as e:
+            self.errors.append(f"Login error: {str(e)}")
+            return False
 
     def decode_url_email(self, encoded_str):
         """Decode URL-encoded email string."""
@@ -56,13 +87,15 @@ class MoodleScraper:
 
     def get_user_profile(self, user_id):
         """Fetch user profile details with enhanced error handling."""
+        if not self.logged_in:
+            return None
+
         try:
             # Add random delay to avoid detection
             time.sleep(self.delay + random.uniform(0, 0.5))
             
-            response = requests.get(
-                f"{BASE_URL}{user_id}", 
-                headers=HEADERS, 
+            response = self.session.get(
+                f"{PROFILE_URL}{user_id}", 
                 timeout=10
             )
             
@@ -94,57 +127,13 @@ class MoodleScraper:
                     return profile
                     
             elif response.status_code == 403:
-                self.errors.append(f"Access forbidden - Check cookie validity! ID: {user_id}")
+                self.errors.append(f"Access forbidden - Check your account permissions! ID: {user_id}")
                 
             return None
             
         except Exception as e:
             self.errors.append(f"Error fetching ID {user_id}: {str(e)}")
             return None
-
-    def save_results(self):
-        """Save results in multiple formats."""
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Create timestamp directory
-        result_dir = os.path.join(OUTPUT_DIR, timestamp)
-        os.makedirs(result_dir, exist_ok=True)
-        
-        # Save detailed profiles
-        detailed_path = os.path.join(result_dir, "detailed_profiles.txt")
-        with open(detailed_path, "w", encoding='utf-8') as f:
-            f.write("MOODLE PROFILE SCAN RESULTS\n")
-            f.write(f"Scan Range: {self.start_id} - {self.end_id}\n")
-            f.write(f"Total Profiles: {len(self.profiles)}\n")
-            f.write(f"Scan Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"Duration: {time.time() - self.start_time:.2f} seconds\n")
-            f.write("=" * 50 + "\n\n")
-            
-            for profile in self.profiles:
-                for key, value in profile.items():
-                    if value:
-                        f.write(f"{key.title()}: {value}\n")
-                f.write("─" * 50 + "\n\n")
-
-        # Save JSON format
-        json_path = os.path.join(result_dir, "profiles.json")
-        with open(json_path, "w", encoding='utf-8') as f:
-            json.dump(self.profiles, f, indent=2, ensure_ascii=False)
-
-        # Save emails only
-        emails_path = os.path.join(result_dir, "emails.txt")
-        with open(emails_path, "w", encoding='utf-8') as f:
-            for profile in self.profiles:
-                if profile['email']:
-                    f.write(f"{profile['email']}\n")
-
-        # Save error log
-        if self.errors:
-            error_path = os.path.join(result_dir, "errors.log")
-            with open(error_path, "w", encoding='utf-8') as f:
-                f.write("\n".join(self.errors))
-
-        return result_dir
 
     def scan_profiles(self):
         """Scan profiles using multiple threads."""
@@ -192,14 +181,24 @@ def main():
     parser.add_argument('--end', type=int, default=1000, help='Ending user ID')
     parser.add_argument('--threads', type=int, default=5, help='Number of threads')
     parser.add_argument('--delay', type=float, default=0.5, help='Delay between requests')
+    parser.add_argument('--email', type=str, help='Moodle account email')
     args = parser.parse_args()
+
+    # Get password securely
+    password = getpass.getpass("Enter your Moodle password: ")
 
     print(BANNER)
     print(Fore.YELLOW + "Enhanced Moodle Profile Scraper - Use Responsibly!\n" + Fore.RESET)
 
-    scraper = MoodleScraper(args.start, args.end, args.threads, args.delay)
+    scraper = MoodleScraper(args.start, args.end, args.email, password, args.threads, args.delay)
+    
+    if not scraper.login():
+        print(Fore.RED + "❌ Login failed. Check your credentials and try again.")
+        if scraper.errors:
+            print(Fore.RED + "\n".join(scraper.errors))
+        return
+    
     scraper.scan_profiles()
-
 
 if __name__ == "__main__":
     main()

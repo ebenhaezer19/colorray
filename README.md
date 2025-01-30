@@ -40,7 +40,9 @@ python colloray.py
 
 Advanced usage with custom parameters:
 ```bash
-python colloray.py --start 1000 --end 2000 --threads 10 --delay 0.3
+python crollay.py --email <your_email>
+python colloray.py --email <your_email> --start 1000 --end 2000 --threads 10 --delay 0.3
+
 ```
 
 ### Command Line Arguments
