@@ -22,8 +22,8 @@ You must log in and must a CIT People.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/moodle-scraper.git
-cd moodle-scraper
+git clone https://github.com/yourusername/moodle-scraper.git](https://github.com/ebenhaezer19/crollay.git
+cd crollay
 ```
 
 2. Install required packages:
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 Basic usage:
 ```bash
-python colloray.py
+python crollay.py
 ```
 
 Advanced usage with custom parameters:
